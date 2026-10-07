@@ -37,7 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   ui.initOAuth({
-    clientId: "horizon-dashboard",
+    clientId: "horizon-api-docs",
     appName: "HorizonSuite API Reference",
     scopes: ["openid", "profile", "email", "offline_access"],
     usePkceWithAuthorizationCodeGrant: true,

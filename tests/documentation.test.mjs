@@ -5,6 +5,7 @@ import test from "node:test";
 const api = JSON.parse(await readFile("generated/api.json", "utf8"));
 const auth = JSON.parse(await readFile("generated/auth.json", "utf8"));
 const html = await readFile("src/index.html", "utf8");
+const app = await readFile("src/assets/app.js", "utf8");
 
 function operations(document) {
   return Object.entries(document.paths).flatMap(([path, item]) =>
@@ -58,5 +59,11 @@ test("ships only local executable and stylesheet assets", () => {
   assert.match(html, /assets\/swagger-ui-bundle\.js/);
   assert.match(html, /openapi\/api\.json/);
   assert.match(html, /openapi\/auth\.json/);
+});
+
+test("uses the dedicated public PKCE client", () => {
+  assert.match(app, /clientId:\s*"horizon-api-docs"/);
+  assert.match(app, /usePkceWithAuthorizationCodeGrant:\s*true/);
+  assert.doesNotMatch(app, /clientSecret/);
 });
 

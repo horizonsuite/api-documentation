@@ -3,7 +3,7 @@
 Static Swagger UI documentation for the production HorizonSuite API and Auth
 services. The site is built for GitHub Pages and is published at:
 
-<https://horizonsuite.github.io/api-documentation/>
+<https://docs.horizonsuite.de/>
 
 The canonical Protocol Buffer contracts are stored in `proto/`. The build
 generates OpenAPI 3.1 documents from those contracts, validates them with
@@ -19,6 +19,8 @@ npm run check
 
 The generated static site is written to `dist/`. Serve that directory through
 any static HTTP server to test interactive requests and OAuth redirects.
+Production authorization uses the public `horizon-api-docs` client with
+Authorization Code and PKCE S256; no client secret is shipped to the browser.
 
 ## Publishing
 
