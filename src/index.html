@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HorizonSuite API and authentication reference">
+    <meta name="color-scheme" content="light">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://api.horizonsuite.de https://auth.horizonsuite.de; base-uri 'self'; form-action https://auth.horizonsuite.de; frame-ancestors 'none'"
+    >
+    <title>HorizonSuite API Reference</title>
+    <link rel="icon" href="assets/favicon.png" sizes="32x32">
+    <link rel="stylesheet" href="assets/swagger-ui.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/swagger-ui-bundle.js" defer></script>
+    <script src="assets/swagger-ui-standalone-preset.js" defer></script>
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="HorizonSuite API Reference">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span class="brand-copy">
+          <strong>HorizonSuite</strong>
+          <small>API Reference</small>
+        </span>
+      </a>
+      <nav class="resource-links" aria-label="Reference resources">
+        <span class="environment"><span aria-hidden="true"></span>Production</span>
+        <a href="openapi/api.json">API JSON</a>
+        <a href="openapi/auth.json">Auth JSON</a>
+        <a href="https://github.com/horizonsuite/api-documentation">GitHub</a>
+      </nav>
+    </header>
+    <aside class="protocol-note" aria-label="Protocol note">
+      <strong>Connect / ProtoJSON</strong>
+      <span>Unary RPCs use HTTP POST with <code>Connect-Protocol-Version: 1</code>. Streaming calls require a native gRPC client.</span>
+    </aside>
+    <main id="swagger-ui" aria-label="Interactive API reference"></main>
+    <noscript>This reference requires JavaScript to render Swagger UI.</noscript>
+  </body>
+</html>

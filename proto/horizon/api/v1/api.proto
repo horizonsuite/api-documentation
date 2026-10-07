@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package horizon.api.v1;
+
+message HealthRequest {}
+message HealthResponse { string status = 1; string service = 2; string version = 3; }
+
+message CreateCustomerAccountRequest { string display_name = 1; }
+message CustomerAccount {
+  string id = 1;
+  string display_name = 2;
+  string owner_account_id = 3;
+  string status = 4;
+  int64 created_at_unix = 5;
+}
+
+message CreateInstallationGroupRequest {
+  string customer_account_id = 1;
+  string display_name = 2;
+  int32 device_limit = 3;
+}
+message InstallationGroup {
+  string id = 1;
+  string customer_account_id = 2;
+  string display_name = 3;
+  int32 device_limit = 4;
+  int32 active_device_count = 5;
+  string status = 6;
+}
+
+message CreateInstallationRequest {
+  string installation_group_id = 1;
+  string display_name = 2;
+  int32 optional_device_limit = 3;
+}
+message Installation {
+  string id = 1;
+  string installation_group_id = 2;
+  string display_name = 3;
+  int32 optional_device_limit = 4;
+  int32 active_device_count = 5;
+  string status = 6;
+}
+
+message AssignRoleRequest {
+  string account_id = 1;
+  string role_key = 2;
+  string scope_type = 3;
+  string scope_id = 4;
+}
+message AssignRoleResponse { string assignment_id = 1; }
+
+message RevokeRoleAssignmentRequest { string assignment_id = 1; string correlation_id = 2; }
+message RevokeRoleAssignmentResponse { bool revoked = 1; int32 terminated_sessions = 2; }
+
+message InviteMemberRequest {
+  string email = 1;
+  string display_name = 2;
+  string role_key = 3;
+  string scope_type = 4;
+  string scope_id = 5;
+}
+message InviteMemberResponse {
+  string account_id = 1;
+  string assignment_id = 2;
+  bool account_created = 3;
+}
+message RemoveMemberRequest {
+  string account_id = 1;
+  string scope_type = 2;
+  string scope_id = 3;
+  string correlation_id = 4;
+}
+message RemoveMemberResponse { int32 revoked_assignments = 1; int32 terminated_sessions = 2; }
+
+message ActivateDeviceRequest {
+  string installation_id = 1;
+  string installation_instance_id = 2;
+  string display_name = 3;
+  string operating_system = 4;
+  string app_version = 5;
+}
+message Device {
+  string id = 1;
+  string installation_id = 2;
+  string installation_instance_id = 3;
+  string display_name = 4;
+  string operating_system = 5;
+  string status = 6;
+  int64 last_seen_at_unix = 7;
+}
+
+message DeactivateDeviceRequest { string device_id = 1; }
+message DeactivateDeviceResponse { bool deactivated = 1; }
+
+message GetEntitlementsRequest { string installation_id = 1; string device_id = 2; }
+message ModuleEntitlement { string module_key = 1; bool active = 2; int64 valid_until_unix = 3; }
+message GetEntitlementsResponse {
+  bool allowed = 1;
+  string denial_reason = 2;
+  string customer_account_id = 3;
+  string installation_group_id = 4;
+  repeated ModuleEntitlement modules = 5;
+  int32 device_limit = 6;
+  int32 active_device_count = 7;
+  string restriction_mode = 8;
+  bool read_only = 9;
+}
+
+message SessionClientMessage {
+  string kind = 1;
+  string session_id = 2;
+  string resume_token = 3;
+  string installation_id = 4;
+  string device_id = 5;
+  string operation_id = 6;
+}
+message SessionServerMessage {
+  string kind = 1;
+  string session_id = 2;
+  string resume_token = 3;
+  int64 resume_until_unix = 4;
+  string reason_code = 5;
+  int64 server_time_unix = 6;
+  string restriction_mode = 7;
+  bool read_only = 8;
+}
+
+message ApplyBillingEventRequest {
+  string idempotency_key = 1;
+  string external_reference = 2;
+  string installation_group_id = 3;
+  string event_type = 4;
+  string module_key = 5;
+  int32 quantity = 6;
+  int64 valid_from_unix = 7;
+  int64 valid_until_unix = 8;
+  int64 provider_version = 9;
+  int64 occurred_at_unix = 10;
+}
+message ApplyBillingEventResponse { bool applied = 1; string subscription_id = 2; }
+
+message ApplyScopeRestrictionRequest {
+  string customer_account_id = 1;
+  string scope_type = 2;
+  string scope_id = 3;
+  string type = 4;
+  string mode = 5;
+  string public_reason_code = 6;
+  string internal_reason = 7;
+  string correlation_id = 8;
+  int64 expires_at_unix = 9;
+}
+message ApplyScopeRestrictionResponse { string restriction_id = 1; int32 terminated_sessions = 2; }
+
+message RemoveScopeRestrictionRequest {
+  string customer_account_id = 1;
+  string restriction_id = 2;
+  string correlation_id = 3;
+}
+message RemoveScopeRestrictionResponse { bool removed = 1; }
+
+message RestrictContractOwnerRequest {
+  string customer_account_id = 1;
+  string type = 2;
+  string mode = 3;
+  string public_reason_code = 4;
+  string internal_reason = 5;
+  int64 expires_at_unix = 6;
+  string correlation_id = 7;
+}
+message RestrictContractOwnerResponse {
+  string account_restriction_id = 1;
+  string scope_restriction_id = 2;
+  int32 terminated_sessions = 3;
+}
+
+message LiftContractRestrictionRequest {
+  string customer_account_id = 1;
+  string account_restriction_id = 2;
+  string scope_restriction_id = 3;
+  string correlation_id = 4;
+}
+message LiftContractRestrictionResponse { bool removed = 1; }
+
+service HealthService { rpc Check(HealthRequest) returns (HealthResponse); }
+
+service CustomerAdminService {
+  rpc CreateCustomerAccount(CreateCustomerAccountRequest) returns (CustomerAccount);
+  rpc CreateInstallationGroup(CreateInstallationGroupRequest) returns (InstallationGroup);
+  rpc CreateInstallation(CreateInstallationRequest) returns (Installation);
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc RevokeRoleAssignment(RevokeRoleAssignmentRequest) returns (RevokeRoleAssignmentResponse);
+  rpc InviteMember(InviteMemberRequest) returns (InviteMemberResponse);
+  rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse);
+  rpc ApplyScopeRestriction(ApplyScopeRestrictionRequest) returns (ApplyScopeRestrictionResponse);
+  rpc RemoveScopeRestriction(RemoveScopeRestrictionRequest) returns (RemoveScopeRestrictionResponse);
+  rpc RestrictContractOwner(RestrictContractOwnerRequest) returns (RestrictContractOwnerResponse);
+  rpc LiftContractRestriction(LiftContractRestrictionRequest) returns (LiftContractRestrictionResponse);
+}
+
+service LicenseService {
+  rpc ActivateDevice(ActivateDeviceRequest) returns (Device);
+  rpc DeactivateDevice(DeactivateDeviceRequest) returns (DeactivateDeviceResponse);
+  rpc GetEntitlements(GetEntitlementsRequest) returns (GetEntitlementsResponse);
+  rpc ConnectSession(stream SessionClientMessage) returns (stream SessionServerMessage);
+}
+
+service BillingService {
+  rpc ApplyBillingEvent(ApplyBillingEventRequest) returns (ApplyBillingEventResponse);
+}
+

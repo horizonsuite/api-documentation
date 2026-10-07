@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package horizon.auth.v1;
+
+message Empty {}
+
+message HealthRequest {}
+message HealthResponse {
+  string status = 1;
+  string service = 2;
+  string version = 3;
+}
+
+message IntrospectRequest {
+  string access_token = 1;
+  string required_client_id = 2;
+}
+
+message IntrospectResponse {
+  bool active = 1;
+  string subject = 2;
+  string email = 3;
+  repeated string system_roles = 4;
+  int64 restriction_version = 5;
+  int64 expires_at_unix = 6;
+  string client_id = 7;
+}
+
+enum RestrictionType {
+  RESTRICTION_TYPE_UNSPECIFIED = 0;
+  SECURITY_INCIDENT = 1;
+  ADMINISTRATIVE_HOLD = 2;
+  LEGAL_DISPUTE = 3;
+  PAYMENT_DEFAULT = 4;
+  TERMS_VIOLATION = 5;
+  FRAUD_SUSPECTED = 6;
+  MANUAL_REVIEW = 7;
+  CUSTOM = 8;
+}
+
+enum RestrictionMode {
+  RESTRICTION_MODE_UNSPECIFIED = 0;
+  LOGIN_LIMITED = 1;
+  SERVICE_LOCK = 2;
+  READ_ONLY = 3;
+  FULL_LOCK = 4;
+}
+
+message ApplyAccountRestrictionRequest {
+  string account_id = 1;
+  RestrictionType type = 2;
+  RestrictionMode mode = 3;
+  string public_reason_code = 4;
+  string internal_reason = 5;
+  string created_by = 6;
+  int64 expires_at_unix = 7;
+  string correlation_id = 8;
+}
+
+message ApplyAccountRestrictionResponse {
+  string restriction_id = 1;
+  int64 restriction_version = 2;
+}
+
+message RemoveAccountRestrictionRequest {
+  string account_id = 1;
+  string restriction_id = 2;
+  string removed_by = 3;
+  string correlation_id = 4;
+}
+
+message RemoveAccountRestrictionResponse {
+  int64 restriction_version = 1;
+}
+
+message SetDashboardAccessRequest {
+  string account_id = 1;
+  bool allowed = 2;
+  string changed_by = 3;
+}
+
+message SetDashboardAccessResponse {
+  bool allowed = 1;
+}
+
+message InviteAccountRequest {
+  string email = 1;
+  string display_name = 2;
+  bool dashboard_access = 3;
+  string invited_by = 4;
+}
+
+message InviteAccountResponse {
+  string account_id = 1;
+  bool created = 2;
+}
+
+message WatchSecurityEventsRequest {
+  int64 after_sequence = 1;
+}
+
+message SecurityEvent {
+  int64 sequence = 1;
+  string event_id = 2;
+  string event_type = 3;
+  string account_id = 4;
+  int64 restriction_version = 5;
+  int64 occurred_at_unix = 6;
+  string correlation_id = 7;
+  string restriction_id = 8;
+  int32 restriction_type = 9;
+  int32 restriction_mode = 10;
+  int64 expires_at_unix = 11;
+}
+
+message MySecurityProfileRequest {}
+message MySecurityProfileResponse {
+  string account_id = 1;
+  string email = 2;
+  bool email_verified = 3;
+  bool dashboard_access = 4;
+  bool totp_enabled = 5;
+  bool email_otp_enabled = 6;
+  int32 passkey_count = 7;
+  int32 active_session_count = 8;
+  int64 restriction_version = 9;
+}
+
+message RevokeMySessionsRequest {
+  string keep_session_id = 1;
+}
+message RevokeMySessionsResponse {
+  int32 revoked_count = 1;
+}
+
+service HealthService {
+  rpc Check(HealthRequest) returns (HealthResponse);
+}
+
+service AuthInternalService {
+  rpc Introspect(IntrospectRequest) returns (IntrospectResponse);
+  rpc ApplyAccountRestriction(ApplyAccountRestrictionRequest) returns (ApplyAccountRestrictionResponse);
+  rpc RemoveAccountRestriction(RemoveAccountRestrictionRequest) returns (RemoveAccountRestrictionResponse);
+  rpc SetDashboardAccess(SetDashboardAccessRequest) returns (SetDashboardAccessResponse);
+  rpc InviteAccount(InviteAccountRequest) returns (InviteAccountResponse);
+  rpc WatchSecurityEvents(WatchSecurityEventsRequest) returns (stream SecurityEvent);
+}
+
+service AuthPublicService {
+  rpc GetMySecurityProfile(MySecurityProfileRequest) returns (MySecurityProfileResponse);
+  rpc RevokeMySessions(RevokeMySessionsRequest) returns (RevokeMySessionsResponse);
+}
+
